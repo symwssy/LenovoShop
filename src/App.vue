@@ -2,7 +2,7 @@
   <div class="app">
     <Header />
     <main class="content">
-      <router-view></router-view>
+      <router-view :key="$route.fullPath"></router-view>
     </main>
   </div>
 </template>
@@ -24,5 +24,4 @@ body {
   flex-direction: column;
   min-height: 100vh; /* Ensure the app takes up the full height of the viewport */
 }
-
 </style>

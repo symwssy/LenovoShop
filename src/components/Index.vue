@@ -37,11 +37,14 @@
 
 <script setup>
 import { onMounted } from 'vue';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // 确保在组件内引入
+
 import ShopPage from '../components/ShopPage.vue'; // 导入 ShopPage 组件
 
 onMounted(() => {
   const carouselElement = document.querySelector('#carouselExampleIndicators');
   if (carouselElement) {
+    // 此时 bootstrap 应该已经可用
     new bootstrap.Carousel(carouselElement, {
       interval: 5000, // 5秒切换一次
       wrap: true
@@ -49,6 +52,7 @@ onMounted(() => {
   }
 });
 </script>
+
 
 <style scoped>
 .app-container {

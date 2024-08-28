@@ -1,14 +1,33 @@
 <template>
-  <div class="container mt-5">
-    <div class="row">
-      <!-- 商品卡片 -->
-      <div class="col-md-4 mb-4" v-for="product in products" :key="product.id">
-        <div class="card">
-          <img :src="product.image" class="card-img-top" :alt="product.name">
-          <div class="card-body text-center">
-            <h5 class="card-title">{{ product.name }}</h5>
-            <p class="card-text">{{ product.description }}</p>
-            <h6 class="card-price">{{ product.price }}</h6>
+  <div class="shop-page">
+    <!-- 侧边导航 -->
+    <nav class="side-nav" :class="{ 'show': isSidebarVisible }">
+      <ul>
+        <!-- 强制循环11次 -->
+        <li v-for="index in 11" :key="index - 1">
+          <a href="#" @click.prevent="scrollToSection(index - 1)" :class="{ active: activeSection === index - 1 }">
+            <span class="section-layer">{{ index }}F</span>
+            <span class="section-title">{{ sections[index - 1]?.title || '' }}</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- 页面内容 -->
+    <div class="content">
+      <div v-for="index in 11" :key="index" class="section" ref="sections" :data-index="index - 1">
+        <h2>{{ sections[index - 1].title }}</h2>
+        <div class="section-content">
+          <img :src="sections[index - 1].image" alt="Section Image" class="section-image">
+          <div class="products">
+            <div v-for="product in sections[index - 1].products" :key="product.id" class="product-card">
+              <img :src="product.image" class="product-image" :alt="product.name">
+              <div class="product-details">
+                <h3 class="product-name">{{ product.name }}</h3>
+                <p class="product-description">{{ product.description }}</p>
+                <p class="product-price">{{ product.price }}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -17,106 +36,211 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
-const products = ref([
-  {
-    id: 1,
-    name: '商品 1',
-    description: '这是商品 1 的介绍。',
-    price: '¥99.00',
-    image: '../src/assets/product1.jpg',
-  },
-  {
-    id: 2,
-    name: '商品 2',
-    description: '这是商品 2 的介绍。',
-    price: '¥129.00',
-    image: '../src/assets/product2.jpg',
-  },
-  {
-    id: 3,
-    name: '商品 3',
-    description: '这是商品 3 的介绍。',
-    price: '¥159.00',
-    image: '../src/assets/product3.jpg',
-  },
-  {
-    id: 4,
-    name: '商品 4',
-    description: '这是商品 4 的介绍。',
-    price: '¥189.00',
-    image: '../src/assets/product4.jpg',
-  },
-  {
-    id: 5,
-    name: '商品 5',
-    description: '这是商品 5 的介绍。',
-    price: '¥219.00',
-    image: '../src/assets/product5.jpg',
-  },
-  {
-    id: 6,
-    name: '商品 6',
-    description: '这是商品 6 的介绍。',
-    price: '¥249.00',
-    image: '../src/assets/product6.jpg',
-  },
-  {
-    id: 7,
-    name: '商品 7',
-    description: '这是商品 7 的介绍。',
-    price: '¥279.00',
-    image: '../src/assets/product7.jpg',
-  },
-  {
-    id: 8,
-    name: '商品 8',
-    description: '这是商品 8 的介绍。',
-    price: '¥299.00',
-    image: '../src/assets/product8.jpg',
-  },
-  {
-    id: 9,
-    name: '商品 9',
-    description: '这是商品 9 的介绍。',
-    price: '¥329.00',
-    image: '../src/assets/product9.jpg',
-  },
+// 默认的商品数据
+const defaultProduct = {
+  id: 0,
+  name: '商品',
+  description: '这是商品的介绍。',
+  price: '¥9999.99',
+  image: '../src/assets/default-product.jpg',
+};
+
+// 默认的sections数据
+const sections = ref([
+  { title: 'Lenovo 电脑', image: '../src/assets/sections/section1.png', products: Array(8).fill(defaultProduct) },
+  { title: 'Lenovo 台式机', image: '../src/assets/sections/section2.png', products: Array(8).fill(defaultProduct) },
+  { title: 'ThinkPad 电脑', image: '../src/assets/sections/section3.png', products: Array(8).fill(defaultProduct) },
+  { title: '手机&配件', image: '../src/assets/sections/section4.png', products: Array(8).fill(defaultProduct) },
+  { title: '平板电脑', image: '../src/assets/sections/section5.png', products: Array(8).fill(defaultProduct) },
+  { title: '选件', image: '../src/assets/sections/section6.png', products: Array(8).fill(defaultProduct) },
+  { title: '服务/配件', image: '../src/assets/sections/section7.png', products: Array(8).fill(defaultProduct) },
+  { title: '智能', image: '../src/assets/sections/section8.png', products: Array(8).fill(defaultProduct) },
+  { title: '显示器', image: '../src/assets/sections/section9.png', products: Array(8).fill(defaultProduct) },
+  { title: 'IP周边', image: '../src/assets/sections/section10.png', products: Array(8).fill(defaultProduct) },
+  { title: 'thinkplus', image: '../src/assets/sections/section11.png', products: Array(8).fill(defaultProduct) },
 ]);
 
+const activeSection = ref(0);
+const isSidebarVisible = ref(false);
+
+function scrollToSection(index) {
+  const sectionElement = document.querySelector(`.section[data-index="${index}"]`);
+  if (sectionElement) {
+    sectionElement.scrollIntoView({ behavior: 'smooth' });
+    activeSection.value = index;
+  }
+}
+
+
+function handleScroll() {
+  const sections = document.querySelectorAll('.section');
+  let shouldShowSidebar = false;
+  let currentActiveSection = -1;
+
+
+  // 遍历第1到第11层
+  for (let i = 0; i < sections.length; i++) {
+    const section = sections[i];
+    const rect = section.getBoundingClientRect();
+
+    // 检查部分是否在视口内
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+        shouldShowSidebar = true; // 只要有一个部分在视口内，就显示侧边栏
+        currentActiveSection = i; // 记录当前视口内的部分索引
+      break; // 一旦找到在视口内的部分就停止循环
+    }
+  }
+
+  if(sections[0].getBoundingClientRect().bottom > 900) {
+    shouldShowSidebar = false;
+  }
+
+  // 更新侧边栏的显示状态
+  isSidebarVisible.value = shouldShowSidebar;
+  // 更新选中的部分
+  activeSection.value = currentActiveSection;
+}
+
+onMounted(() => {
+  // 监听滚动事件
+  window.addEventListener('scroll', handleScroll);
+  // 初始化检查
+  handleScroll();
+});
+
+onUnmounted(() => {
+  // 移除滚动事件监听器
+  window.removeEventListener('scroll', handleScroll);
+});
 </script>
 
 <style scoped>
-.card {
-  border: 1px solid #ddd; /* 添加边框 */
-  border-radius: 8px; /* 圆角边框 */
-  overflow: hidden; /* 防止图片溢出 */
-}
-
-.card-img-top {
-  height: 200px;
-  object-fit: cover; /* 图片覆盖 */
-}
-
-.card-body {
+.shop-page {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
 
-.card-title {
-  font-size: 1.25rem;
+.side-nav {
+  width: 15%;
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  opacity: 0; /* Initially hide sidebar */
+  transition: opacity 0.3s;
+}
+
+.side-nav.show {
+  opacity: 1; /* Show sidebar when condition met */
+}
+
+.side-nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.side-nav li {
+  margin: 10px 0;
+}
+
+.side-nav a {
+  display: flex;
+  align-items: center; /* Center items vertically */
+  justify-content: flex-end; /* Align items to the right */
+  text-decoration: none;
+  color: black;
+  padding: 5px 10px;
+  position: relative;
+}
+
+.side-nav .section-layer,
+.side-nav .section-title {
+  display: flex;
+  align-items: center; /* Center text vertically */
+  justify-content: center; /* Center text horizontally */
+  font-size: 1rem;
+  padding: 5px;
+  border-radius: 4px;
+  margin-right: 5px;
+}
+
+.side-nav .section-layer {
+  background: none; /* Optional: Remove background */
+}
+
+.side-nav .section-title {
+  display: none; /* Hide title by default */
+}
+
+.side-nav a:hover .section-title,
+.side-nav a.active .section-title {
+  display: flex; /* Show title on hover or when active */
+  color: red; /* Red color for active item */
+}
+
+.side-nav a:hover .section-layer,
+.side-nav a.active .section-layer {
+  display: none; /* Hide layer number on hover or when active */
+}
+
+.content {
+  margin-left: 220px; /* Ensure content is not obscured by side navigation */
+  padding: 20px;
+}
+
+.section {
+  margin-bottom: 50px;
+  padding: 10px;
+}
+
+.section-content {
+  display: flex;
+  gap: 10px;
+}
+
+.section-image {
+  width: 20%;
+  height: auto;
+}
+
+.products {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  width: 75%;
+}
+
+.product-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.product-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.product-details {
+  padding: 10px;
+}
+
+.product-name {
+  font-size: 1rem;
   margin-bottom: 0.5rem;
 }
 
-.card-text {
-  font-size: 1rem;
+.product-description {
+  font-size: 0.875rem;
   color: #555;
 }
 
-.card-price {
-  font-size: 1.25rem;
+.product-price {
+  font-size: 1rem;
   font-weight: bold;
   color: #333;
 }
