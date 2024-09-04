@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import {ref, onMounted, onUnmounted} from 'vue';
 
 // 默认的商品数据
 const defaultProduct = {
@@ -49,17 +49,17 @@ const defaultProduct = {
 
 // 默认的sections数据
 const sections = ref([
-  { title: 'Lenovo 电脑', image: '../src/assets/sections/section1.png', products: Array(8).fill(defaultProduct) },
-  { title: 'Lenovo 台式机', image: '../src/assets/sections/section2.png', products: Array(8).fill(defaultProduct) },
-  { title: 'ThinkPad 电脑', image: '../src/assets/sections/section3.png', products: Array(8).fill(defaultProduct) },
-  { title: '手机&配件', image: '../src/assets/sections/section4.png', products: Array(8).fill(defaultProduct) },
-  { title: '平板电脑', image: '../src/assets/sections/section5.png', products: Array(8).fill(defaultProduct) },
-  { title: '选件', image: '../src/assets/sections/section6.png', products: Array(8).fill(defaultProduct) },
-  { title: '服务/配件', image: '../src/assets/sections/section7.png', products: Array(8).fill(defaultProduct) },
-  { title: '智能', image: '../src/assets/sections/section8.png', products: Array(8).fill(defaultProduct) },
-  { title: '显示器', image: '../src/assets/sections/section9.png', products: Array(8).fill(defaultProduct) },
-  { title: 'IP周边', image: '../src/assets/sections/section10.png', products: Array(8).fill(defaultProduct) },
-  { title: 'thinkplus', image: '../src/assets/sections/section11.png', products: Array(8).fill(defaultProduct) },
+  {title: 'Lenovo 电脑', image: '../src/assets/sections/section1.png', products: Array(8).fill(defaultProduct)},
+  {title: 'Lenovo 台式机', image: '../src/assets/sections/section2.png', products: Array(8).fill(defaultProduct)},
+  {title: 'ThinkPad 电脑', image: '../src/assets/sections/section3.png', products: Array(8).fill(defaultProduct)},
+  {title: '手机&配件', image: '../src/assets/sections/section4.png', products: Array(8).fill(defaultProduct)},
+  {title: '平板电脑', image: '../src/assets/sections/section5.png', products: Array(8).fill(defaultProduct)},
+  {title: '选件', image: '../src/assets/sections/section6.png', products: Array(8).fill(defaultProduct)},
+  {title: '服务/配件', image: '../src/assets/sections/section7.png', products: Array(8).fill(defaultProduct)},
+  {title: '智能', image: '../src/assets/sections/section8.png', products: Array(8).fill(defaultProduct)},
+  {title: '显示器', image: '../src/assets/sections/section9.png', products: Array(8).fill(defaultProduct)},
+  {title: 'IP周边', image: '../src/assets/sections/section10.png', products: Array(8).fill(defaultProduct)},
+  {title: 'thinkplus', image: '../src/assets/sections/section11.png', products: Array(8).fill(defaultProduct)},
 ]);
 
 const activeSection = ref(0);
@@ -68,17 +68,15 @@ const isSidebarVisible = ref(false);
 function scrollToSection(index) {
   const sectionElement = document.querySelector(`.section[data-index="${index}"]`);
   if (sectionElement) {
-    sectionElement.scrollIntoView({ behavior: 'smooth' });
+    sectionElement.scrollIntoView({behavior: 'smooth'});
     activeSection.value = index;
   }
 }
-
 
 function handleScroll() {
   const sections = document.querySelectorAll('.section');
   let shouldShowSidebar = false;
   let currentActiveSection = -1;
-
 
   // 遍历第1到第11层
   for (let i = 0; i < sections.length; i++) {
@@ -87,13 +85,14 @@ function handleScroll() {
 
     // 检查部分是否在视口内
     if (rect.top < window.innerHeight && rect.bottom > 0) {
-        shouldShowSidebar = true; // 只要有一个部分在视口内，就显示侧边栏
-        currentActiveSection = i; // 记录当前视口内的部分索引
+      shouldShowSidebar = true; // 只要有一个部分在视口内，就显示侧边栏
+      currentActiveSection = i; // 记录当前视口内的部分索引
       break; // 一旦找到在视口内的部分就停止循环
     }
   }
 
-  if(sections[0].getBoundingClientRect().bottom > 900) {
+  // 只要第一个部分的底部超过了900px，就隐藏侧边栏
+  if (sections[0].getBoundingClientRect().bottom > 900) {
     shouldShowSidebar = false;
   }
 
@@ -128,12 +127,12 @@ onUnmounted(() => {
   top: 50%;
   transform: translateY(-50%);
   background: none;
-  opacity: 0; /* Initially hide sidebar */
+  opacity: 0;
   transition: opacity 0.3s;
 }
 
 .side-nav.show {
-  opacity: 1; /* Show sidebar when condition met */
+  opacity: 1;
 }
 
 .side-nav ul {
@@ -147,8 +146,8 @@ onUnmounted(() => {
 
 .side-nav a {
   display: flex;
-  align-items: center; /* Center items vertically */
-  justify-content: flex-end; /* Align items to the right */
+  align-items: center;
+  justify-content: flex-end;
   text-decoration: none;
   color: black;
   padding: 5px 10px;
@@ -158,8 +157,8 @@ onUnmounted(() => {
 .side-nav .section-layer,
 .side-nav .section-title {
   display: flex;
-  align-items: center; /* Center text vertically */
-  justify-content: center; /* Center text horizontally */
+  align-items: center;
+  justify-content: center;
   font-size: 1rem;
   padding: 5px;
   border-radius: 4px;
@@ -167,27 +166,31 @@ onUnmounted(() => {
 }
 
 .side-nav .section-layer {
-  background: none; /* Optional: Remove background */
+  background: none;
 }
 
 .side-nav .section-title {
-  display: none; /* Hide title by default */
+  display: none;
 }
 
 .side-nav a:hover .section-title,
 .side-nav a.active .section-title {
-  display: flex; /* Show title on hover or when active */
-  color: red; /* Red color for active item */
+  display: flex;
+  color: red;
 }
 
 .side-nav a:hover .section-layer,
 .side-nav a.active .section-layer {
-  display: none; /* Hide layer number on hover or when active */
+  display: none;
 }
 
 .content {
-  margin-left: 220px; /* Ensure content is not obscured by side navigation */
-  padding: 20px;
+  margin-left: 220px;
+  padding: 5%;
+}
+
+.content h2 {
+  margin-top: 6%;
 }
 
 .section {
@@ -217,6 +220,18 @@ onUnmounted(() => {
   border-radius: 8px;
   overflow: hidden;
   background: #fff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* 添加过渡效果 */
+  text-align: center; /* 使子元素水平居中 */
+}
+
+.product-card:hover {
+  transform: translateY(-5px); /* 鼠标悬浮时向上浮动5px */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
+}
+
+.product-card:active {
+  transform: translateY(-2px); /* 点击时稍微浮动，效果更加明显 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 点击时的阴影效果 */
 }
 
 .product-image {
@@ -240,8 +255,8 @@ onUnmounted(() => {
 }
 
 .product-price {
-  font-size: 1rem;
+  font-size: 2vh;
   font-weight: bold;
-  color: #333;
+  color: #ff0000;
 }
 </style>

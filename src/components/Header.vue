@@ -17,15 +17,19 @@
   </header>
 </template>
 
-
 <script setup>
 </script>
 
 <style scoped>
 .navbar {
+  position: fixed; /* 固定在视口顶部 */
+  top: 0;
+  left: 0;
+  width: 100%; /* 宽度100%确保覆盖整个视口宽度 */
   background-color: #333;
   color: #fff;
   padding: 1rem;
+  z-index: 1000; /* 确保Header在其他内容之上 */
 }
 
 .container {
@@ -37,12 +41,10 @@
 .left-nav {
   display: flex;
   align-items: center;
-  margin-left: -10rem; /* 确保右边距不为负值 */
 }
 
 .logo {
   height: 5vh; /* 设置高度为视口高度的 50% */
-  margin-right: 1rem;
 }
 
 nav a {
@@ -58,12 +60,11 @@ nav a.router-link-active {
 .right-nav {
   display: flex;
   align-items: center;
-  margin-right: -10rem; /* 确保右边距不为负值 */
 }
 
 .icon {
   height: 2rem; /* 设置放大镜图标的高度 */
-  margin-right: 1rem; /* 确保右边距不为负值 */
+  margin-right: 1rem;
 }
 
 .right-nav a {
@@ -72,4 +73,3 @@ nav a.router-link-active {
   text-decoration: none;
 }
 </style>
-

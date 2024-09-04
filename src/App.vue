@@ -22,6 +22,10 @@ body {
   background-color: #F0F2F4;
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Ensure the app takes up the full height of the viewport */
+  min-height: 100vh; /* 确保应用占满整个视口高度 */
+}
+
+.content {
+  margin-top: 4rem; /* 根据Header的实际高度设置内边距 */
 }
 </style>
