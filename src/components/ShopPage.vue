@@ -185,6 +185,7 @@ onUnmounted(() => {
 }
 
 .content {
+  margin-top: -5%;
   margin-left: 220px;
   padding: 5%;
 }
