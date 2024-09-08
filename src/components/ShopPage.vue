@@ -105,9 +105,8 @@ function handleScroll() {
 onMounted(() => {
   // 监听滚动事件
   window.addEventListener('scroll', handleScroll);
-  // 初始化检查
-  handleScroll();
 });
+
 
 onUnmounted(() => {
   // 移除滚动事件监听器
