@@ -57,28 +57,28 @@ const sections = ref([
 const activeSection = ref(0);
 const isSidebarVisible = ref(false);
 
-async function fetchProducts() {
+async function fetchProducts(goodsType) {
   try {
     const response = await axios.get('/api/index/', {
       params: {
-        goodsType: 1, // 当前页数
-/*        size: 8  // 每页大小*/
+        goodsType: goodsType,
       }
     });
 
     if (response.data.code === 0) {
       const products = response.data.data;
-
-      // 将商品数据分配到 sections 中的每个部分
-      sections.value = sections.value.map((section, index) => ({
-        ...section,
-        products: products // 将所有产品分配到每个 section
-      }));
+      sections.value[goodsType].products = products;
     } else {
       console.error('API 返回错误:', response.data.message);
     }
   } catch (error) {
     console.error('请求失败:', error);
+  }
+}
+
+async function loadAllProducts() {
+  for (let i = 0; i < 11; i++) {
+    await fetchProducts(i);
   }
 }
 
@@ -115,7 +115,7 @@ function handleScroll() {
 }
 
 onMounted(() => {
-  fetchProducts();
+  loadAllProducts();
   window.addEventListener('scroll', handleScroll);
 });
 
