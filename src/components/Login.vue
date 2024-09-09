@@ -113,6 +113,7 @@ export default {
 
 .main h3 {
   margin: 2vh 0 2vh 0;
+  font-weight: bold;
 }
 
 /* 卡片样式 */
@@ -120,12 +121,13 @@ export default {
   background-color: rgba(255, 255, 255, 0.8); /* 半透明白色背景 */
   border-radius: 15px;
   left: 50%;
-  margin-right: 10vh;
+  margin-right: 10vw;
   padding: 30px;
-  height: 70vh;
-  width: 50vh;
+  height: 50vh;
+  width: 30vw;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
 }
+
 
 /* 输入框样式 */
 .form-group {
@@ -138,6 +140,22 @@ export default {
   background-color: #f22d18;
   border-radius: 5px;
   color: white;
+  transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.2s ease; /* 添加平滑过渡 */
+}
+
+.custom-btn:hover {
+  background-color: #f22d18;
+  color: white;
+  opacity: 0.9;
+  transform: scale(1.05); /* 鼠标悬停时放大 */
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); /* 悬停时阴影效果 */
+}
+
+.custom-btn:active {
+    background-color: #f22d18;
+  color: white;
+  transform: scale(0.95); /* 按下时缩小 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 按下时减少阴影 */
 }
 
 

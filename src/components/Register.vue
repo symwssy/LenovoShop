@@ -1,62 +1,64 @@
 <template>
-  <div>
-    <div class="header">
-      <div class="centered-content">
-        <img src="../../../Libra-Web/src/assets/title.svg" alt="头部图片">
-      </div>
-    </div>
+  <div class="login-page">
     <div class="main">
-      <h3 style="margin-left: 45%;">注册</h3>
-      <h3 style="margin-left: 44%;">Register</h3>
+      <div class="card-container">
+        <h3>联想会员注册</h3>
 
-      <div class="input-group mb-3">
-        <span class="input-group-text" id="basic-addon1">邮箱</span>
-        <input type="text" class="form-control" v-model="formData.email" placeholder="Enter your email"
-               aria-label="Email"
-               aria-describedby="basic-addon1">
-      </div>
-      <button type="button" class="btn btn-outline-secondary" @click="sendEmailCode">发送验证码</button>
-
-      <div class="input-group mb-3">
-        <span class="input-group-text" id="basic-addon2">验证码</span>
-        <input type="text" class="form-control" v-model="formData.code" placeholder="Enter your code"
-               aria-label="Code"
-               aria-describedby="basic-addon2">
-      </div>
-
-      <div class="form-group">
-        <div class="password-container">
-          <input :type="showPassword ? 'text' : 'password'" class="form-control" id="password" v-model="formData.password" placeholder="Enter your password">
-          <div class="conceal" :class="{ yincang: showPassword }" @click="togglePassword"></div>
+        <!-- 用户名输入框 -->
+        <div class="form-group">
+          <label for="username">用户名</label>
+          <input type="text" class="form-control" id="username" v-model="formData.username" placeholder="Enter your username">
         </div>
-      </div>
-      <div class="form-group">
-        <div class="password-container">
-          <input :type="showPassword ? 'text' : 'password'" class="form-control" id="confirm-password" v-model="formData.confirmPassword" placeholder="Confirm your password">
-          <div class="conceal" :class="{ yincang: showPassword }" @click="togglePassword"></div>
+
+        <!-- 邮箱输入框 -->
+        <div class="form-group">
+          <label for="email">邮箱</label>
+          <input type="text" class="form-control" id="email" v-model="formData.email" placeholder="Enter your email">
         </div>
-      </div>
 
-      <div v-if="errorMessage" class="alert alert-danger">
-        {{ errorMessage }}
-      </div>
-
-      <div class="d-grid gap-2 col-6 mx-auto">
-        <button class="btn custom-btn" type="button" @click="register">注册</button>
-        <div style="margin-left: 130px;">
-          <span>第三方登录:</span>
-          <a href="#"><img src="../../../Libra-Web/src/assets/weixin1.png" alt="Weixin"/></a>
+        <!-- 验证码输入框和按钮 -->
+        <div class="form-group code-group">
+          <label for="code">验证码</label>
+          <div class="d-flex">
+            <input type="text" class="form-control code-input" id="code" v-model="formData.code" placeholder="Enter your code">
+            <button type="button" class="btn custom-btn code-btn" @click="sendEmailCode">获取验证码</button>
+          </div>
         </div>
-      </div>
 
-      <div class="d-grid gap-2 col-6 mx-auto">
-        <div style="margin-left:170px;">
-          <a href="/Login">已有帐号</a>
+        <!-- 密码输入框 -->
+        <div class="form-group">
+          <label for="password">密码</label>
+          <div class="password-container">
+            <input :type="showPassword ? 'text' : 'password'" class="form-control" id="password"
+                   v-model="formData.password" placeholder="Enter your password">
+            <div class="conceal" :class="{ yincang: showPassword }" @click="togglePassword"></div>
+          </div>
+        </div>
+
+        <!-- 确认密码输入框 -->
+        <div class="form-group">
+          <label for="confirm-password">确认密码</label>
+          <div class="password-container">
+            <input :type="showPassword ? 'text' : 'password'" class="form-control" id="confirm-password"
+                   v-model="formData.confirmPassword" placeholder="Confirm your password">
+            <div class="conceal" :class="{ yincang: showPassword }" @click="togglePassword"></div>
+          </div>
+        </div>
+
+        <!-- 注册按钮 -->
+        <div class="text">
+          <button class="btn custom-btn" type="button" @click="register">注册</button>
+        </div>
+
+        <!-- 已有账号链接 -->
+        <div class="text">
+          <router-link to="/login">已有帐号? 登录</router-link>
         </div>
       </div>
     </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -119,82 +121,60 @@ export default {
 </script>
 
 
-
 <style scoped>
-/* 头部样式 */
-.header {
-  position: absolute;
-  height: 100px;
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  background-color: #F0F2F4;
-}
-
-
-/* 左侧样式 */
-.navbar {
-  position: absolute;
-  top: 100px;
-  left: 0px; /* 设置左边距为50% */
-  bottom: 0px;
-  right: 0px;
-  padding: 10px;
-  overflow-y: auto;
-  background-color: #F0F2F4;
-}
-
-/* 主区域 */
-.main {
-  position: absolute;
-  top: 200px;
-  left: 50%; /* 设置左边距为50% */
-  bottom: 0px;
-  right: 0px;
-  padding: 10px;
-  overflow-y: auto;
-  background-color: #F0F2F4;
-}
-
-/* 居中内容样式 */
-.centered-content {
+.login-page {
+  background-image: url('../assets/Background_Login.jpg');
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
 }
 
-/* 展示图片样式 */
-.picture-content {
-  display: flex;
-  top: 10px;
-  left: 50%;
+.main h3 {
+  margin: 2vh 0 2vh 0;
+  font-weight: bold;
 }
 
-.login-form {
-  width: 60%; /* 增加表单宽度 */
-  margin: 0 auto; /* 水平居中表单 */
-  padding: 20px; /* 增加内边距 */
+/* 卡片样式 */
+.card-container {
+  background-color: rgba(255, 255, 255, 0.8); /* 半透明白色背景 */
+  border-radius: 15px;
+  left: 50%;
+  margin-right: 10vw;
+  padding: 30px;
+  height: 80vh;
+  width: 30vw;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
 }
 
 .form-group {
-  margin-bottom: 40px; /* 增加输入组之间的间隔 */
-  margin-top: 50px;
-}
-
-.form-floating {
-  width: 100%; /* 输入框占满整个容器宽度 */
-  padding: 10px; /* 增加输入框的内边距 */
-  margin-left: 0%;
+  margin-bottom: 20px;
 }
 
 .custom-btn {
-  padding: 10px 20px; /* 增加按钮的内边距 */
-  margin: 0 auto; /* 水平居中*/
-  width: 150px; /* 按钮占满整个容器宽度 */
-  background-color: rgba(206, 206, 206, 0.89);
-  margin-bottom: 10px;
-  margin-top: 20px;
-  border-radius: 20px;
+  padding: 10px 20px;
+  width: 100%;
+  background-color: #f22d18;
+  border-radius: 5px;
+  color: white;
+  transition: transform 0.3s ease, opacity 0.3s ease, box-shadow 0.2s ease; /* 添加平滑过渡 */
+}
+
+.custom-btn:hover {
+  background-color: #f22d18;
+  color: white;
+  opacity: 0.9;
+  transform: scale(1.05); /* 鼠标悬停时放大 */
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); /* 悬停时阴影效果 */
+}
+
+.custom-btn:active {
+  background-color: #f22d18;
+  color: white;
+  transform: scale(0.95); /* 按下时缩小 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 按下时减少阴影 */
 }
 
 .password-container {
@@ -202,31 +182,30 @@ export default {
 }
 
 .form-control {
-  border-radius: 20px; /* 自定义圆角半径 */
+  border-radius: 5px;
+  width: 100%;
   height: 40px;
-  padding-right: 40px; /* 增加右侧内边距以适应图标 */
 }
 
-.conceal {
-  position: absolute;
-  top: 10px; /* 根据需要调整 */
-  right: 10px; /* 根据需要调整 */
-  width: 20px; /* 调整图标大小 */
-  height: 20px; /* 调整图标大小 */
-  background-image: url(src/assets/closeeye.png);
-  background-size: cover;
-  cursor: pointer;
+.d-flex {
+  display: flex;
+  justify-content: space-between;
 }
 
-.conceal.yincang {
-  background-image: url(src/assets/openeye.png);
+.code-input {
+  width: 66.6%; /* 验证码输入框占 2/3 宽度 */
+  height: 40px; /* 保持和其他输入框一致 */
 }
 
-.d-grid a img {
-  width: 24px; /* 或者您希望的尺寸 */
-  height: 24px;
-  margin: 0 5px; /* 添加一些空间在图标之间 */
+.code-btn {
+  width: 33.3%; /* 验证码按钮占 1/3 宽度 */
+  height: 40px; /* 与输入框高度一致 */
 }
 
-
+.text {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
 </style>
+
