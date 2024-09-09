@@ -16,16 +16,16 @@
     <!-- 页面内容 -->
     <div class="content">
       <div v-for="index in 11" :key="index" class="section" ref="sections" :data-index="index - 1">
-        <h2>{{ sections[index - 1].title }}</h2>
+        <h2>{{ sections[index - 1]?.title }}</h2>
         <div class="section-content">
-          <img :src="sections[index - 1].image" alt="Section Image" class="section-image">
+          <img :src="sections[index - 1]?.image" alt="Section Image" class="section-image">
           <div class="products">
-            <div v-for="product in sections[index - 1].products" :key="product.id" class="product-card">
-              <img :src="product.image" class="product-image" :alt="product.name">
+            <div v-for="product in sections[index - 1]?.products" :key="product.id" class="product-card">
+              <img :src="product.goodsPic" class="product-image" :alt="product.goodsName">
               <div class="product-details">
-                <h3 class="product-name">{{ product.name }}</h3>
-                <p class="product-description">{{ product.description }}</p>
-                <p class="product-price">{{ product.price }}</p>
+                <h3 class="product-name">{{ product.goodsName }}</h3>
+                <p class="product-description">{{ product.briefIntro }}</p>
+                <p class="product-price">{{ product.goodsPrice }} 元</p>
               </div>
             </div>
           </div>
@@ -36,84 +36,93 @@
 </template>
 
 <script setup>
-import {ref, onMounted, onUnmounted} from 'vue';
-
-// 默认的商品数据
-const defaultProduct = {
-  id: 0,
-  name: '商品',
-  description: '这是商品的介绍。',
-  price: '¥9999.99',
-  image: '../src/assets/default-product.jpg',
-};
+import { ref, onMounted, onUnmounted } from 'vue';
+import axios from 'axios';
 
 // 默认的sections数据
 const sections = ref([
-  {title: 'Lenovo 电脑', image: '../src/assets/sections/section1.png', products: Array(8).fill(defaultProduct)},
-  {title: 'Lenovo 台式机', image: '../src/assets/sections/section2.png', products: Array(8).fill(defaultProduct)},
-  {title: 'ThinkPad 电脑', image: '../src/assets/sections/section3.png', products: Array(8).fill(defaultProduct)},
-  {title: '手机&配件', image: '../src/assets/sections/section4.png', products: Array(8).fill(defaultProduct)},
-  {title: '平板电脑', image: '../src/assets/sections/section5.png', products: Array(8).fill(defaultProduct)},
-  {title: '选件', image: '../src/assets/sections/section6.png', products: Array(8).fill(defaultProduct)},
-  {title: '服务/配件', image: '../src/assets/sections/section7.png', products: Array(8).fill(defaultProduct)},
-  {title: '智能', image: '../src/assets/sections/section8.png', products: Array(8).fill(defaultProduct)},
-  {title: '显示器', image: '../src/assets/sections/section9.png', products: Array(8).fill(defaultProduct)},
-  {title: 'IP周边', image: '../src/assets/sections/section10.png', products: Array(8).fill(defaultProduct)},
-  {title: 'thinkplus', image: '../src/assets/sections/section11.png', products: Array(8).fill(defaultProduct)},
+  { title: 'Lenovo 电脑', image: '../src/assets/sections/section1.png', products: [] },
+  { title: 'Lenovo 台式机', image: '../src/assets/sections/section2.png', products: [] },
+  { title: 'ThinkPad 电脑', image: '../src/assets/sections/section3.png', products: [] },
+  { title: '手机&配件', image: '../src/assets/sections/section4.png', products: [] },
+  { title: '平板电脑', image: '../src/assets/sections/section5.png', products: [] },
+  { title: '选件', image: '../src/assets/sections/section6.png', products: [] },
+  { title: '服务/配件', image: '../src/assets/sections/section7.png', products: [] },
+  { title: '智能', image: '../src/assets/sections/section8.png', products: [] },
+  { title: '显示器', image: '../src/assets/sections/section9.png', products: [] },
+  { title: 'IP周边', image: '../src/assets/sections/section10.png', products: [] },
+  { title: 'thinkplus', image: '../src/assets/sections/section11.png', products: [] },
 ]);
 
 const activeSection = ref(0);
 const isSidebarVisible = ref(false);
 
+async function fetchProducts() {
+  try {
+    const response = await axios.get('/api/index/', {
+      params: {
+        goodsType: 1, // 当前页数
+/*        size: 8  // 每页大小*/
+      }
+    });
+
+    if (response.data.code === 0) {
+      const products = response.data.data;
+
+      // 将商品数据分配到 sections 中的每个部分
+      sections.value = sections.value.map((section, index) => ({
+        ...section,
+        products: products // 将所有产品分配到每个 section
+      }));
+    } else {
+      console.error('API 返回错误:', response.data.message);
+    }
+  } catch (error) {
+    console.error('请求失败:', error);
+  }
+}
+
 function scrollToSection(index) {
   const sectionElement = document.querySelector(`.section[data-index="${index}"]`);
   if (sectionElement) {
-    sectionElement.scrollIntoView({behavior: 'smooth'});
+    sectionElement.scrollIntoView({ behavior: 'smooth' });
     activeSection.value = index;
   }
 }
 
 function handleScroll() {
-  const sections = document.querySelectorAll('.section');
+  const sectionsEl = document.querySelectorAll('.section');
   let shouldShowSidebar = false;
   let currentActiveSection = -1;
 
-  // 遍历第1到第11层
-  for (let i = 0; i < sections.length; i++) {
-    const section = sections[i];
+  for (let i = 0; i < sectionsEl.length; i++) {
+    const section = sectionsEl[i];
     const rect = section.getBoundingClientRect();
 
-    // 检查部分是否在视口内
     if (rect.top < window.innerHeight && rect.bottom > 0) {
-      shouldShowSidebar = true; // 只要有一个部分在视口内，就显示侧边栏
-      currentActiveSection = i; // 记录当前视口内的部分索引
-      break; // 一旦找到在视口内的部分就停止循环
+      shouldShowSidebar = true;
+      currentActiveSection = i;
+      break;
     }
   }
 
-  // 只要第一个部分的底部超过了900px，就隐藏侧边栏
-  if (sections[0].getBoundingClientRect().bottom > 900) {
+  if (sectionsEl[0].getBoundingClientRect().bottom > 900) {
     shouldShowSidebar = false;
   }
 
-  // 更新侧边栏的显示状态
   isSidebarVisible.value = shouldShowSidebar;
-  // 更新选中的部分
   activeSection.value = currentActiveSection;
 }
 
 onMounted(() => {
-  // 监听滚动事件
+  fetchProducts();
   window.addEventListener('scroll', handleScroll);
 });
 
-
 onUnmounted(() => {
-  // 移除滚动事件监听器
   window.removeEventListener('scroll', handleScroll);
 });
 </script>
-
 <style scoped>
 .shop-page {
   display: flex;

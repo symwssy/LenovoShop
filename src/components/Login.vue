@@ -1,12 +1,11 @@
 <template>
   <div class="login-page">
-
     <div class="main">
       <div class="card-container">
         <h3>联想会员登录</h3>
         <div class="form-group">
           <label for="username">用户名</label>
-          <input type="text" class="form-control" id="username" v-model="formData.mobile"
+          <input type="text" class="form-control" id="username" v-model="formData.username"
                  placeholder="Enter your username">
         </div>
         <div class="form-group">
@@ -41,7 +40,7 @@ export default {
   data() {
     return {
       formData: {
-        mobile: '',
+        username: '',
         password: '',
       },
       showPassword: false,
@@ -54,19 +53,37 @@ export default {
 
     async performLogin() {
       try {
-        const response = await axios.post('http://120.26.54.144:8000/api/user/login/', this.formData);
-        if (response.status === 200) {
-          console.log('登录成功');
-          const userId = response.data.user_id;
-          console.log("用户 ID:", userId);
-          this.$store.commit('setUserId', userId);
-          this.$store.dispatch('login', true);
-          localStorage.setItem('token', response.data.token);
-          localStorage.setItem('isLoggedIn', 'true');
-          localStorage.setItem('userId', userId.toString());
-          this.$router.push('/community');
+        // 注意：这里使用了 await 来等待 axios.post 请求完成
+        const response = await axios.post('/api/user/login', {
+          username: this.formData.username,
+          password: this.formData.password
+        });
+
+        // 检查请求是否成功，以及响应数据是否有效
+        console.log('完整的响应数据:', response);
+
+        if (response.status === 200 && response.data) {
+          const responseData = response.data;
+
+          if (responseData.code === 0) {  // 登录成功
+            console.log('登录成功');
+            const token = responseData.data;  // JWT Token
+
+            if (token) {
+              console.log("Token:", token);
+              this.$store.commit('setUserToken', token);  // 假设你在 Vuex 中有一个设置 token 的 mutation
+              this.$store.dispatch('login', true);
+              localStorage.setItem('token', token);
+              localStorage.setItem('isLoggedIn', 'true');
+              this.$router.push('/index');  // 登录成功后跳转
+            } else {
+              console.error('未返回有效的 token');
+            }
+          } else {
+            console.error('登录失败：', responseData.message);  // 处理错误消息
+          }
         } else {
-          console.error('登录失败:', response.statusText);
+          console.error('登录失败：', response.statusText);
         }
       } catch (error) {
         console.error('登录失败：', error);
@@ -79,6 +96,8 @@ export default {
   },
 };
 </script>
+
+
 
 <style scoped>
 /* 设置背景图片 */
