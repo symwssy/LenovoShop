@@ -59,7 +59,7 @@ const isSidebarVisible = ref(false);
 
 async function fetchProducts(goodsType) {
   try {
-    const response = await axios.get('/api/index/', {
+    const response = await axios.get('/api/index/obtain', {
       params: {
         goodsType: goodsType,
       }
