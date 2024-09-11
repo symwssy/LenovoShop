@@ -1,91 +1,87 @@
 <template>
-  <div class="user-profile">
-    <div class="avatar-section">
-      <div class="user-img">
-        <img :src="avatarUrl" class="avatar" @click="triggerFileInput" />
-        <input type="file" ref="fileInput" @change="handleFileChange" style="display: none;" />
-      </div>
-      <div class="user-id">
-        <div v-if="!editingUserId" class="UserId-show" @click="startEditing('userId')">
-          <div class="id-title">用户名：</div>
-          <div class="id">{{ user.userId }}</div>
-        </div>
-        <div v-else class="UserId-edit">
-          <input v-model="editFields.userId" class="edit-input" @blur="confirmEdit('userId')" />
+  <div class="background-page">
+    <div class="user-profile">
+      <div class="avatar-section">
+        <div class="user-img">
+          <img :src="avatarUrl" class="avatar" @click="triggerFileInput"/>
+          <input type="file" ref="fileInput" @change="handleFileChange" style="display: none;"/>
         </div>
       </div>
-    </div>
-    <div class="personal-info">
-      <div class="info-field">
-        <div class="user-name">
-          <span class="name">姓名：</span>
-          <span v-if="!editingName" @click="startEditing('name')">{{ user.name }}</span>
-          <input v-else v-model="editFields.name" class="name-input" @blur="confirmEdit('name')" />
+      <div class="personal-info">
+        <div class="info-field">
+          <div class="user-name">
+            <span class="name">用户名：</span>
+            <span v-if="!editingName" @click="startEditing('name')">{{ user.name }}</span>
+            <input v-else v-model="editFields.name" class="name-input" @blur="confirmEdit('name')"/>
+          </div>
         </div>
-      </div>
-      <div class="info-field">
-        <div class="user-tel">
-          <span class="tel">电话：</span>
-          <span v-if="!editingPhone" @click="startEditing('phone')">{{ user.phone }}</span>
-          <input v-else v-model="editFields.phone" class="tel-input" @blur="confirmEdit('phone')" />
+        <div class="info-field">
+          <div class="user-tel">
+            <span class="tel">电话：</span>
+            <span v-if="!editingPhone" @click="startEditing('phone')">{{ user.phone }}</span>
+            <input v-else v-model="editFields.phone" class="tel-input" @blur="confirmEdit('phone')"/>
+          </div>
         </div>
-      </div>
-      <div class="info-field">
-        <div class="user-save">
-          <span class="save-title">余额：</span>
-          <span class="save">{{ user.save }}元</span>
-        </div>
-        <div class="save-operator">
-        <button @click="showDialog('withdraw')" class="withdraw">提现</button>
-        <button @click="showDialog('deposit')" class="recharge">充值</button>
-        </div>
-        <div v-if="dialogVisible" class="dialog-overlay">
-          <div class="dialog">
-            <h3>{{ dialogType === 'withdraw' ? '提现' : '充值' }}</h3>
-            <input v-model.number="amount" type="number" placeholder="请输入金额" />
-            <div class="save-dealing">
-              <button @click="handleConfirm" class="yes">确定</button>
-              <button @click="closeDialog" class="no">取消</button>
+        <div class="info-field">
+          <div class="user-save">
+            <span class="save-title">余额：</span>
+            <span class="save">{{ user.save }}元</span>
+          </div>
+          <div class="save-operator">
+            <button @click="showDialog('withdraw')" class="withdraw">提现</button>
+            <button @click="showDialog('deposit')" class="recharge">充值</button>
+          </div>
+          <div v-if="dialogVisible" class="dialog-overlay">
+            <div class="dialog">
+              <h3>{{ dialogType === 'withdraw' ? '提现' : '充值' }}</h3>
+              <input v-model.number="amount" type="number" placeholder="请输入金额"/>
+              <div class="save-dealing">
+                <button @click="handleConfirm" class="yes">确定</button>
+                <button @click="closeDialog" class="no">取消</button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="address-section">
-      <AddressList
-          :addresses="addresses"
-          @add-address="handleAddAddress"
-          @edit-address="handleEditAddress"
-          @remove-address="handleRemoveAddress"
-      />
-    </div>
-    <div class="orders-section">
-      <OrderList
-          :orders="orders"
-          @order-click="handleOrderClick"
-      />
+      <div class="address-section">
+        <AddressList
+            :addresses="addresses"
+            @add-address="handleAddAddress"
+            @edit-address="handleEditAddress"
+            @remove-address="handleRemoveAddress"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 import AddressList from './AddressList.vue'
-import OrderList from './OrderList.vue'
-import avatarImage from '@/assets/100001.png'
+import OrderList from './OrderList备份.vue'
+import avatarImage from '../assets/default.jpg'
 
-// 用户信息对象
 const user = ref({
-  userId: 'User123456',
-  name: '张三',
-  phone: '13246276472',
-  save: 1000 // 初始余额
+  userId: '',
+  name: '',
+  phone: '',
+  save: 0
 })
 
 const editFields = ref({ ...user.value })
 const editingUserId = ref(false)
 const editingName = ref(false)
 const editingPhone = ref(false)
+
+const avatarUrl = ref(avatarImage)
+const dialogVisible = ref(false)
+const dialogType = ref('')
+const amount = ref(0)
+const addresses = ref([])
+const orders = ref([]) // 订单数据也可以从 API 获取
+
+const token = localStorage.getItem('token')
 
 const startEditing = (field) => {
   if (field === 'userId') {
@@ -96,9 +92,9 @@ const startEditing = (field) => {
     editingPhone.value = true
   }
 }
+
 const confirmEdit = (field) => {
   const value = editFields.value[field]
-
   if (value.trim() === '') {
     alert('输入不能为空')
     return
@@ -107,11 +103,11 @@ const confirmEdit = (field) => {
   editingUserId.value = editingName.value = editingPhone.value = false
 }
 
-const avatarUrl = ref(avatarImage)
 const triggerFileInput = () => {
   const fileInput = document.querySelector('input[type="file"]')
   fileInput.click()
 }
+
 const handleFileChange = (event) => {
   const file = event.target.files[0]
   if (file) {
@@ -122,30 +118,6 @@ const handleFileChange = (event) => {
     reader.readAsDataURL(file)
   }
 }
-const addresses = ref([
-  {
-    recipient: '张三',
-    phone: '1380000870',
-    detail: '北京市朝阳区建国门外大街1号'
-  },
-  {
-    recipient: '李四',
-    phone: '13900000000',
-    detail: '上海市浦东新区陆家嘴2号'
-  }
-])
-const handleAddAddress = (address) => {
-  addresses.value.push(address)
-}
-const handleEditAddress = ({ index, address }) => {
-  addresses.value[index] = address
-}
-const handleRemoveAddress = (index) => {
-  addresses.value.splice(index, 1)
-}
-const dialogVisible = ref(false)
-const dialogType = ref('')
-const amount = ref(0)
 
 const showDialog = (type) => {
   dialogType.value = type
@@ -154,7 +126,7 @@ const showDialog = (type) => {
 
 const closeDialog = () => {
   dialogVisible.value = false
-  amount.value = 0 // 重置金额输入框
+  amount.value = 0
 }
 
 const handleConfirm = () => {
@@ -173,11 +145,41 @@ const handleConfirm = () => {
   }
   closeDialog()
 }
+
+onMounted(async () => {
+  console.log(token);
+
+  try {
+    const response = await axios.get('/api/user/userInfo', {
+      headers: {
+        'Authorization': `${token}` // 确保 token 正确传递
+      }
+    })
+
+    if (response.data.code === 0) {
+      const userInfo = response.data.data
+      user.value = {
+        userId: userInfo.username || '',
+        name: userInfo.username || '', // 根据需要调整
+        phone: userInfo.phoneNumber || '',
+        save: userInfo.balance || 0
+      }
+      editFields.value = { ...user.value }
+    } else {
+      console.error('获取用户信息失败:', response.data.message)
+    }
+  } catch (error) {
+    console.error('获取用户信息失败:', error.response ? error.response.data : error.message)
+  }
+})
+
 </script>
+
 <style scoped>
+.background-page {
+}
+
 .user-profile {
-  width: 90%;
-  height: 100%;
   max-width: 800px;
   margin: auto;
   border: 1px solid #ddd;
@@ -185,10 +187,12 @@ const handleConfirm = () => {
   border-radius: 8px;
   background-color: #f9f9f9;
 }
+
 .avatar-section {
   text-align: center;
   position: relative;
 }
+
 .avatar {
   width: 100px;
   height: 100px;
@@ -196,17 +200,20 @@ const handleConfirm = () => {
   cursor: pointer;
   position: relative;
 }
-.UserId-show,.UserId-edit{
+
+.UserId-show, .UserId-edit {
   display: flex;
   width: 530px;
   height: 80px;
   justify-content: center;
 }
-.id-title{
+
+.id-title {
   width: 80px;
   line-height: 80px;
   font-size: 18px;
 }
+
 .user-id {
   display: flex;
   align-items: center;
@@ -230,7 +237,8 @@ const handleConfirm = () => {
   font-size: 16px;
   margin-top: 20px;
 }
-.name-input,.tel-input{
+
+.name-input, .tel-input {
   padding: 5px;
   margin-right: 10px;
   border: 1px solid #ddd;
@@ -238,23 +246,37 @@ const handleConfirm = () => {
   height: 20px;
   font-size: 14px;
 }
+
 .personal-info {
   margin-top: 20px;
+  text-align: center; /* 确保 .info-field 元素水平居中 */
 }
 
 .info-field {
-  margin-bottom: 10px;
-  display: flex;
+  display: inline-flex; /* 使用 inline-flex 使其宽度适应内容，同时允许水平居中 */
+  width: 60%; /* 设置宽度 */
+  margin: 0 auto 10px; /* 上下居中，底部留白 */
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
   align-items: center;
   height: 30px;
+  text-align: left; /* 保持内部文字左对齐 */
 }
-.user-name,.user-tel,.user-save{
+
+.info-field input {
+  width: 100%; /* 输入框宽度填满 .info-field */
+  border: none;
+  outline: none;
+  height: 100%; /* 输入框高度填满 .info-field */
+}
+
+
+.user-name, .user-tel, .user-save {
   width: 100%;
   font-size: 16px;
 }
+
 .address-section {
   margin-top: 20px;
 }
@@ -292,42 +314,59 @@ const handleConfirm = () => {
 
 .dialog {
   background: white;
-  padding: 20px;
+  padding: 30px;
   border-radius: 8px;
   text-align: center;
-  width: 200px;
-  height: 150px;
+  width: 300px; /* 弹窗宽度 */
+  max-width: 90%; /* 确保在小屏幕上也能显示 */
 }
-.save-operator {
-  width: 155px;
+
+.dialog h3 {
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+.dialog input[type="number"] {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.save-dealing, .save-operator {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 10px; /* 按钮间距 */
 }
-.withdraw,.recharge{
+
+.save-operator button {
   border: 1px solid #d9d8d6;
   border-radius: 5px;
   color: #000;
-  font-size: 13px;
-  height: 24px;
-  line-height: 24px;
-  padding: 0 12px;
+  font-size: 16px;
+  height: 30px; /* 按钮高度 */
+  line-height: 30px;
+  padding: 0 20px; /* 按钮左右内边距 */
   cursor: pointer;
+  white-space: nowrap; /* 确保按钮文字不换行 */
 }
-.save-dealing{
-  width: 120px;
-  display: flex;
-  margin-left: 40px;
-  margin-top: 20px;
-  justify-content: space-between;
-}
-.yes,.no{
+
+.withdraw, .recharge, .yes, .no {
   border: 1px solid #d9d8d6;
   border-radius: 5px;
   color: #000;
-  font-size: 13px;
-  height: 24px;
-  line-height: 24px;
-  padding: 0 12px;
+  font-size: 14px;
+  height: 30px;
+  line-height: 30px;
+  padding: 0 15px;
   cursor: pointer;
+  white-space: nowrap; /* 确保按钮文字不换行 */
 }
+
+.save-dealing button:hover, .save-operator button:hover {
+  background-color: #f0f0f0;
+}
+
 </style>

@@ -20,23 +20,30 @@
         <div class="section-content">
           <img :src="sections[index - 1]?.image" alt="Section Image" class="section-image">
           <div class="products">
-            <div v-for="product in sections[index - 1]?.products" :key="product.id" class="product-card">
+            <div
+                v-for="product in sections[index - 1]?.products"
+                :key="product.id"
+                class="product-card"
+                @click="navigateToDetail(product.id)"
+            >
               <img :src="product.goodsPic" class="product-image" :alt="product.goodsName">
               <div class="product-details">
                 <h3 class="product-name">{{ product.goodsName }}</h3>
                 <p class="product-description">{{ product.briefIntro }}</p>
-                <p class="product-price">{{ product.goodsPrice }} 元</p>
+                <p class="product-price">¥{{ product.goodsPrice }}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router'; // 引入 Vue Router 的 useRouter 函数
 import axios from 'axios';
 
 // 默认的sections数据
@@ -56,6 +63,7 @@ const sections = ref([
 
 const activeSection = ref(0);
 const isSidebarVisible = ref(false);
+const router = useRouter(); // 获取 router 实例
 
 async function fetchProducts(goodsType) {
   try {
@@ -114,6 +122,11 @@ function handleScroll() {
   activeSection.value = currentActiveSection;
 }
 
+// 添加导航函数
+function navigateToDetail(id) {
+  router.push(`/goods-detail/${id}`);
+}
+
 onMounted(() => {
   loadAllProducts();
   window.addEventListener('scroll', handleScroll);
@@ -123,6 +136,9 @@ onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
 });
 </script>
+
+
+
 <style scoped>
 .shop-page {
   display: flex;
@@ -249,23 +265,43 @@ onUnmounted(() => {
   object-fit: cover;
 }
 
-.product-details {
-  padding: 10px;
-}
-
 .product-name {
   font-size: 1rem;
   margin-bottom: 0.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 限制显示 2 行 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: calc(1.2em * 2); /* 确保正好显示 2 行 */
 }
 
 .product-description {
   font-size: 0.875rem;
   color: #555;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 限制显示 2 行 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: calc(1.5em * 2); /* 确保正好显示 2 行 */
+}
+
+.product-details {
+  padding: 10px;
+  position: relative; /* 为了让价格位于底部，需要相对定位 */
 }
 
 .product-price {
   font-size: 2vh;
   font-weight: bold;
   color: #ff0000;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%); /* 水平居中 */
+  text-align: center; /* 确保文本在元素内居中 */
+  bottom: -1.5vh;
 }
+
+
 </style>

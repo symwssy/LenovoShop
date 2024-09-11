@@ -97,78 +97,24 @@ const getStatusLabel = (status) => {
     'pending': '待付款',
     'shipped': '待发货',
     'delivered': '待收货',
-    'received': '已收货',
-    'refunded': '已关闭'
+    'received': '已收货'
   }
   return statusMap[status] || status
 }
 
-// 删除订单
 const handleDelete = (order) => {
-  // 弹出确认对话框
-  const isConfirmed = confirm('是否删除订单');
-
-  // 如果用户点击“是”
-  if (isConfirmed) {
-    alert('成功删除订单');
-    // 删除订单
-    orders.value = orders.value.filter(o => o.orderNumber !== order.orderNumber);
-  }
+  orders.value = orders.value.filter(o => o.id !== order.id)
 }
 
-// 处理付款、退款等
-const handlePayment = (order) => {
-  // 弹出确认对话框
-  const isConfirmed = confirm('是否付款');
-  // 如果用户点击“是”
-  if (isConfirmed) {
-    alert('付款成功');
-    // 查找订单在 orders 列表中的索引
-    const index = orders.value.findIndex(o => o.orderNumber === order.orderNumber);
-    // 如果找到订单，更新其状态为“待发货”
-    if (index !== -1) {
-      orders.value[index].status = '待发货';
-    }
-  }
-}
+const handlePayment = (order) => { /* 处理付款 */ }
+const handleRefund = (order) => { /* 处理退款 */ }
 
-const handleRefund = (order) => {
-  // 弹出确认对话框
-  const isConfirmed = confirm('是否退款');
-
-  // 如果用户点击“是”
-  if (isConfirmed) {
-    // 弹出退款成功提示
-    alert('退款成功');
-
-    // 查找订单在 orders 列表中的索引
-    const index = orders.value.findIndex(o => o.orderNumber === order.orderNumber);
-
-    // 如果找到订单，更新其状态为“退款成功”
-    if (index !== -1) {
-      orders.value[index].status = '已关闭';
-    }
-  }
-}
-
-
-// 确认收货函数：将订单状态改为已收货
 const handleReceipt = (order) => {
-  // 弹出确认对话框
-  const isConfirmed = confirm('是否确认收货？');
-
-  // 如果用户点击“是”
-  if (isConfirmed) {
-    alert('已确认收货');
-    // 查找订单在 orders 列表中的索引
-    const index = orders.value.findIndex(o => o.orderNumber === order.orderNumber);
-    // 如果找到订单，更新其状态为“已收货”
-    if (index !== -1) {
-      orders.value[index].status = '已收货';
-    }
+  const index = orders.value.findIndex(o => o.id === order.id)
+  if (index !== -1) {
+    orders.value[index].status = '已收货'
   }
 }
-
 
 </script>
 

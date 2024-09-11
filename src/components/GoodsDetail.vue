@@ -3,13 +3,13 @@
     <div class="carousel">
       <button @click="prevImage" class="arrow arrow-left">&lt;</button>
       <div class="image-section">
-        <img class="computer-img" :src="images[currentIndex]" alt="Computer Image" />
+        <img class="computer-img" :src="images[currentIndex]" alt="Computer Image"/>
       </div>
       <button @click="nextImage" class="arrow arrow-right">&gt;</button>
     </div>
     <div class="details-section">
-        <h1 class="name">{{ computer.name }}</h1>
-        <p class="type">{{ computer.model }}</p>
+      <h1 class="name">{{ computer.goodsName }}</h1>
+      <p class="type">{{ computer.briefIntro }}</p>
       <div class="discount">【加价购服务满200赠话费】【咨询客服有好礼】
         <a class="more">更多</a>
       </div>
@@ -17,50 +17,49 @@
         <div class="price-desc">商城价</div>
         <div class="price-group">
           <span class="price-sign">¥</span>
-          <span class="price-show">{{ computer.price }}</span>
+          <span class="price-show">{{ computer.goodsPrice }}</span>
         </div>
       </div>
       <div class="location-selector">
         <label class="place-title" for="province">配送至</label>
-          <select v-model="selectedProvince" @change="updateCities">
-            <option value="">选择省</option>
-            <option v-for="province in provinceList" :key="province" :value="province">
-              {{ province }}
-            </option>
-          </select>
-          <label for="city"></label>
-          <select v-model="selectedCity" @change="updateAreas">
-            <option value="">选择市</option>
-            <option v-for="city in cityList" :key="city" :value="city">
-              {{ city }}
-            </option>
-          </select>
-          <label for="area"></label>
-          <select v-model="selectedArea">
-            <option value="">选择县或区</option>
-            <option v-for="area in areaList" :key="area" :value="area">
-              {{ area }}
-            </option>
-          </select>
+        <select v-model="selectedProvince" @change="updateCities">
+          <option value="">选择省</option>
+          <option v-for="province in provinceList" :key="province" :value="province">
+            {{ province }}
+          </option>
+        </select>
+        <label for="city"></label>
+        <select v-model="selectedCity" @change="updateAreas">
+          <option value="">选择市</option>
+          <option v-for="city in cityList" :key="city" :value="city">
+            {{ city }}
+          </option>
+        </select>
+        <label for="area"></label>
+        <select v-model="selectedArea">
+          <option value="">选择县或区</option>
+          <option v-for="area in areaList" :key="area" :value="area">
+            {{ area }}
+          </option>
+        </select>
       </div>
       <div class="computer-consist">
         <div class="os-selection">
           <div class="os-title">操作系统</div>
-          <span class="os">Windows 11 家庭中文版</span>
+          <span class="os">{{ computer.os || 'Windows 11 家庭中文版' }}</span>
         </div>
         <div class="dealing-selection">
           <div class="dealing-title">处理器</div>
-          <span class="dealing">i9-14900HX</span>
+          <span class="dealing">{{ computer.processor || 'i9-14900HX' }}</span>
         </div>
         <div class="store-selection">
           <div class="store-title">存储</div>
-          <span class="store">i9-14900HX</span>
+          <span class="store">{{ computer.storage || '1T SSD' }}</span>
         </div>
         <div class="GPU-selection">
           <div class="GPU-title">显卡</div>
-          <span class="GPU">i9-14900HX</span>
+          <span class="GPU">{{ computer.gpu || 'RTX 4060Ti' }}</span>
         </div>
-
       </div>
       <div class="buy-count">
         <div class="buy-title">购买数量</div>
@@ -78,20 +77,28 @@
 </template>
 
 <script>
+import { onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import axios from 'axios';
+
+import product1 from '../assets/products/product1.jpg';
+import product2 from '../assets/products/product2.jpg';
+
 export default {
   name: 'ComputerDetail',
   data() {
     return {
-      images: [
-        require('@/assets/10001.png'),
-        require('@/assets/10005.jpg'),
-      ],
+      images: [product1, product2],
       currentIndex: 0,
       computer: {
-        name: '拯救者 刃7000K 超能版 14代英特尔酷睿i7 分体台式机',
-        model: '14代英特尔酷睿i7-14650HX/Windows 11 家庭中文版/RTX4060Ti 8G/32G(16*2)/1T SSD',
-        price: '999.99',
-        deliveryLocation: '立即购买'
+        goodsName: '',
+        briefIntro: '',
+        goodsPrice: '',
+        os: '',
+        processor: '',
+        storage: '',
+        gpu: '',
+        image: ''
       },
       provinceList: ['山东省', '江苏省'],
       cityList: [],
@@ -109,10 +116,30 @@ export default {
           '苏州市': ['工业园区', '虎丘区']
         }
       },
-      count:0,
+      count: 0,
     }
   },
   methods: {
+    async fetchComputerDetail(id) {
+      try {
+        const response = await axios.get(`/api/index/detail/${id}`);
+        if (response.data.code === 0) {
+          const data = response.data.data;
+          this.computer = {
+            goodsName: data.goodsName,
+            briefIntro: data.briefIntro,
+            goodsPrice: data.goodsPrice,
+            image: data.goodsPic
+          };
+          // Set images for carousel
+          this.images = [data.goodsPic]; // Assuming only one image for now
+        } else {
+          console.error('API 返回错误:', response.data.message);
+        }
+      } catch (error) {
+        console.error('请求失败:', error);
+      }
+    },
     nextImage() {
       if (this.currentIndex < this.images.length - 1) {
         this.currentIndex++;
@@ -156,12 +183,9 @@ export default {
     },
   },
   mounted() {
-    const osSelect = document.querySelector('.os-select');
-    if (osSelect) {
-      osSelect.addEventListener('click', () => {
-        osSelect.classList.toggle('red');
-      });
-    }
+    const route = useRoute();
+    const id = route.params.id; // 获取 URL 中的 id 参数
+    this.fetchComputerDetail(id);
   }
 }
 </script>
@@ -170,8 +194,6 @@ export default {
 <style scoped>
 .computer-detail {
   display: flex;
-  width: 100%;
-  height: 100%;
   justify-content: center;
   align-items: flex-start;
 }
@@ -182,7 +204,7 @@ export default {
   position: relative;
   width: 40%;
   height: 100%;
-  margin-top: -7%;
+  margin-left: 5%;
 }
 
 .image-section {
@@ -194,7 +216,7 @@ export default {
   overflow: hidden;
 }
 
-.computer-img{
+.computer-img {
   width: 720px;
   height: 720px;
   max-width: 100%;
@@ -226,15 +248,16 @@ export default {
   flex: 1;
   width: 50%;
   height: 100%;
-  margin-left: 20px;
+  margin-left: 5%;
+  margin-top: 5%;
 }
 
-.name{
+.name {
   font-size: 22px;
   font-weight: normal;
 }
 
-.type{
+.type {
   color: #A2A2A2;
   font-size: 14px;
   margin-top: 8px;
@@ -242,7 +265,7 @@ export default {
   word-break: break-all;
 }
 
-.discount{
+.discount {
   height: 22px;
   margin-top: 20px;
   margin-bottom: 16px;
@@ -254,7 +277,7 @@ export default {
   white-space: nowrap;
 }
 
-.more{
+.more {
   font-size: 12px;
   color: #3E8DDD;
   text-align: right;
@@ -265,7 +288,7 @@ export default {
   margin-left: 5px;
 }
 
-.computer-price{
+.computer-price {
   display: flex;
   width: 95%;
   height: 80px;
@@ -274,13 +297,15 @@ export default {
   border: 1px solid #F0F0F0;
   margin-bottom: 20px;
 }
-.computer-consist{
+
+.computer-consist {
   width: 95%;
   height: 130px;
   margin-bottom: 20px;
   margin-top: 20px;
 }
-.price-desc{
+
+.price-desc {
   display: inline-block;
   font-size: 16px;
   color: #434242;
@@ -290,60 +315,67 @@ export default {
   margin-left: 20px;
 }
 
-.price-group{
+.price-group {
   display: inline-block;
 }
 
-.price-sign{
+.price-sign {
   font-size: 20px;
   color: #E1140A;
   font-weight: bold;
   margin-right: 6px;
 }
 
-.price-show{
+.price-show {
   font-weight: bold;
   font-size: 26px;
   color: #E1140A;
 }
-.location-selector{
+
+.location-selector {
   display: flex;
   width: 100%;
   height: 20%;
   margin-bottom: 5px;
 }
-.place-title{
-  float:left;
+
+.place-title {
+  float: left;
   width: 10%;
   line-height: 30px;
   margin-right: 30px;
-  font-size:14px;
+  font-size: 14px;
 }
 
-select{
+select {
   width: 20%;
   height: 40%;
   padding: 5px;
   font-size: 12px;
 }
-.os-selection,.dealing-selection,.store-selection,.GPU-selection{
+
+.os-selection, .dealing-selection, .store-selection, .GPU-selection {
   display: flex;
   font-size: 14px;
   margin: 20px 0;
 }
-.os-title{
+
+.os-title {
   font-size: 14px;
   margin-right: 44px;
 }
-.dealing-title{
+
+.dealing-title {
   font-size: 14px;
   margin-right: 58px;
 }
-.store-title,.GPU-title{
+
+.store-title, .GPU-title {
   font-size: 14px;
   margin-right: 72px;
 }
-.os,.GPU,.store,.dealing{
+
+.os, .GPU, .store, .dealing {
   border: 1px solid black;
   color: black;
   cursor: pointer;
@@ -352,6 +384,7 @@ select{
   text-align: center;
   line-height: 20px;
 }
+
 .buy-count {
   width: 100%;
   height: 60px;
@@ -369,7 +402,7 @@ select{
 
 .count-container {
   display: flex;
-  width:50%;
+  width: 50%;
   height: 70%;
   margin-top: 20px;
 }
@@ -393,14 +426,16 @@ select{
   border: 1px solid #DADADA;
   margin-right: -1px;
 }
-.buy{
+
+.buy {
   width: 100%;
   height: 60px;
   display: flex;
   margin-top: 10px;
-  justify-content:space-between;
+  justify-content: space-between;
 }
-.buy-button{
+
+.buy-button {
   background-color: #007bff;
   color: white;
   border: none;

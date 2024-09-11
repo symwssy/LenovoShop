@@ -53,14 +53,11 @@ export default {
 
     async performLogin() {
       try {
-        // 注意：这里使用了 await 来等待 axios.post 请求完成
-        const response = await axios.post('/api/user/login', {
-          username: this.formData.username,
-          password: this.formData.password
-        });
+        const params = new URLSearchParams();
+        params.append('username', this.formData.username);
+        params.append('password', this.formData.password);
+        const response = await axios.post('/api/user/login', params);
 
-        // 检查请求是否成功，以及响应数据是否有效
-        console.log('完整的响应数据:', response);
 
         if (response.status === 200 && response.data) {
           const responseData = response.data;
@@ -69,13 +66,41 @@ export default {
             console.log('登录成功');
             const token = responseData.data;  // JWT Token
 
-            if (token) {
-              console.log("Token:", token);
-              this.$store.commit('setUserToken', token);  // 假设你在 Vuex 中有一个设置 token 的 mutation
-              this.$store.dispatch('login', true);
-              localStorage.setItem('token', token);
-              localStorage.setItem('isLoggedIn', 'true');
-              this.$router.push('/index');  // 登录成功后跳转
+
+              if (token) {
+                // 获取 token 的第一位，用于判断是否为管理员
+                const isAdmin = token.charAt(0) === '1';
+                // 去掉 token 的第一位，保留剩余部分作为真正的 token
+                const realToken = token.slice(1);
+
+                // 存储 token 到 Vuex 和 localStorage
+                this.$store.commit('setToken', realToken);
+                this.$store.dispatch('login', {
+                  token: realToken,
+                  id: responseData.userId,
+                  username: this.formData.username,
+                  email: responseData.email,
+                  balance: responseData.balance,
+                  user_pic: responseData.userPic,
+                  manager: isAdmin,  // 使用 isAdmin 来表示是否为管理员
+                  phone_number: responseData.phoneNumber,
+                  create_time: responseData.createTime,
+                  update_time: responseData.updateTime
+                });
+
+                console.log(token);
+                console.log(realToken);
+
+
+                // 存储 token 和是否为管理员到 localStorage
+                localStorage.setItem('token', realToken);
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('isAdmin', isAdmin.toString()); // 存储是否为管理员的信息
+
+                // 登录成功后跳转
+                this.$router.push('/index');
+
+
             } else {
               console.error('未返回有效的 token');
             }
@@ -99,6 +124,10 @@ export default {
 
 
 
+console.log("Token:", token);
+
+console.log('Vuex Token:', this.$store.getters.getToken);
+console.log('LocalStorage Token:', localStorage.getItem('token'));
 <style scoped>
 /* 设置背景图片 */
 .login-page {
